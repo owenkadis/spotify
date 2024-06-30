@@ -1,24 +1,27 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
-import urllib.parse as urlparse
+# server.py
 
-class RequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        parsed_path = urlparse.urlparse(self.path)
-        query = urlparse.parse_qs(parsed_path.query)
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(b'Authorization successful. You can close this window.')
-        if 'code' in query:
-            auth_code = query['code'][0]
-            print(f'Authorization code: {auth_code}')
-        return
+from flask import Flask, request, redirect
 
-def run(server_class=HTTPServer, handler_class=RequestHandler, port=8888):
-    server_address = ('', port)
-    httpd = server_class(server_address, handler_class)
-    print(f'Starting server on port {port}')
-    httpd.serve_forever()
+app = Flask(__name__)
+
+CLIENT_ID = '092abfb5ffb543429d75e1ee7ac8561b'
+REDIRECT_URI = 'http://localhost:8888/callback'
+SCOPES = 'user-library-read'
+
+@app.route('/')
+def index():
+    auth_url = (
+        'https://accounts.spotify.com/authorize?'
+        f'client_id={CLIENT_ID}&response_type=code&redirect_uri={REDIRECT_URI}&scope={SCOPES}'
+    )
+    return redirect(auth_url)
+
+@app.route('/callback')
+def callback():
+    code = request.args.get('code')
+    with open('auth_code.txt', 'w') as f:
+        f.write(code)
+    return 'Authorization code received. You can close this window.'
 
 if __name__ == '__main__':
-    run()
+    app.run(port=8888)
