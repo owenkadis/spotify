@@ -5,7 +5,7 @@ import pandas as pd
 
 # Replace these with your actual credentials
 CLIENT_ID = '092abfb5ffb543429d75e1ee7ac8561b'
-CLIENT_SECRET = '5349afb5a649b1adc72a210008538d'
+CLIENT_SECRET = ''
 REDIRECT_URI = 'http://localhost:8888/callback'
 
 def get_tokens(auth_code):
